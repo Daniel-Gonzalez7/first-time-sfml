@@ -17,7 +17,7 @@ int main() {
     // this many lines of code to set text??!??!?!
     sf::Text text;
     text.setFont(font);
-    text.setString("(Q)uit\t(F)aster\t(S)lower\nLeft click To change direction");
+    text.setString("(Q)uit\t(F)aster\t(S)lower (I)nitiate spin/stop\nLeft click To change direction");
     text.setCharacterSize(24);
     text.setFillColor(sf::Color::White);
 
@@ -30,14 +30,15 @@ int main() {
     // put the texture on this sprite, center
     sf::Sprite sprite(t1);
     auto win_size = window.getSize();
+    sprite.setOrigin((sf::Vector2f)t1.getSize() / 2.f);
     sprite.setPosition(win_size.x / 2, win_size.y / 2);
-    // sprite.setOrigin(win_size.x / 2, win_size.x / 2);
 
     //  main loop
     sf::Clock clock;
     sf::Time total_elapsed;
     float rot_direction = 1.f;
     float rot_magnitude = 2.f;
+    bool should_spin = false;
     while (window.isOpen()) {
         // check/handle events
         sf::Event event;
@@ -60,6 +61,8 @@ int main() {
                     rot_magnitude /= 1.5;
                 else if (event.key.code == sf::Keyboard::F)
                     rot_magnitude *= 1.5;
+                else if (event.key.code == sf::Keyboard::I)
+                    should_spin = !should_spin;
             }
         }
         // debugging / playing around
@@ -73,7 +76,7 @@ int main() {
         window.clear();
 
         // do some stupid sh** with the sprite?
-        sprite.rotate(rot_magnitude * rot_direction);
+        if (should_spin) sprite.rotate(rot_magnitude * rot_direction);
 
         // draw the cringe sprite to screen
         window.draw(sprite);
