@@ -1,0 +1,5 @@
+#executables
+sfml-app
+
+#obj files
+*.o
