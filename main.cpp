@@ -33,11 +33,16 @@ int main() {
     sprite.setOrigin((sf::Vector2f)t1.getSize() / 2.f);
     sprite.setPosition(win_size.x / 2, win_size.y / 2);
 
+    // for movement
+    sf::Vector2f delta(-1.5, 1.5);
+
+    // for rotation
+    float rot_direction = 1.f;
+    float rot_magnitude = 2.f;
+
     //  main loop
     sf::Clock clock;
     sf::Time total_elapsed;
-    float rot_direction = 1.f;
-    float rot_magnitude = 2.f;
     bool should_spin = false;
     while (window.isOpen()) {
         // check/handle events
@@ -75,8 +80,37 @@ int main() {
 
         window.clear();
 
-        // do some stupid sh** with the sprite?
+        // physics
+
+        //  rotation
         if (should_spin) sprite.rotate(rot_magnitude * rot_direction);
+
+        // translation
+        sf::FloatRect sprite_rect = sprite.getGlobalBounds();
+        auto curr_pos = sprite.getPosition();
+        auto window_dim = sf::Vector2f(window.getSize());
+
+        std::cout << "rect top: " << sprite_rect.top << "\n";
+        std::cout << "window y: " << window_dim.y << "\n";
+
+        // left
+        if (sprite_rect.left < 0)
+            delta.x *= -1;
+        // right
+        else if (sprite_rect.left + sprite_rect.width > window_dim.x)
+            delta.x *= -1;
+        // top
+        if (sprite_rect.top + sprite_rect.height > window_dim.y) {
+            std::cout << "this is running\n";
+            delta.y *= -1;
+        }
+        // bottom
+        else if (sprite_rect.top < 0)
+            delta.y *= -1;
+
+        sprite.setPosition(curr_pos + delta);
+
+        // down
 
         // draw the cringe sprite to screen
         window.draw(sprite);
