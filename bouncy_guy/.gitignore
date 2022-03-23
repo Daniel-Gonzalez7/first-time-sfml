@@ -3,3 +3,10 @@ sfml-app
 
 #obj files
 *.o
+
+#I know, I need to put this in a global .gitignore
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
