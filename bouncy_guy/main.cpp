@@ -6,6 +6,14 @@
 // Daniel Gonzalez
 // First time using SFML
 
+void get_all_bounds(sf::FloatRect sprite_rect, sf::Vector2f window_dim) {
+    std::cout << "rect left coordinate: " << sprite_rect.left << "\n";
+    std::cout << "rect right coordinate: " << sprite_rect.left + sprite_rect.width << "\n";
+    std::cout << "rect top: " << sprite_rect.top << "\n";
+    std::cout << "rect bottom: " << sprite_rect.top - sprite_rect.height << "\n";
+    // std::cout << "window y: " << window_dim.y << "\n";
+}
+
 int main() {
     // init window
     sf::RenderWindow window(sf::VideoMode(800, 800), "sfml-app");
@@ -37,7 +45,7 @@ int main() {
     sprite.setPosition(win_size.x / 2, win_size.y / 2);
 
     // initial movement
-    sf::Vector2f delta(-1.5, 1.5);
+    sf::Vector2f delta(0, 0);
 
     // for rotation
     float rot_direction = 1.f;
@@ -69,8 +77,13 @@ int main() {
                     rot_magnitude /= 1.5;
                 else if (event.key.code == sf::Keyboard::F)
                     rot_magnitude *= 1.5;
-                else if (event.key.code == sf::Keyboard::I)
+                else if (event.key.code == sf::Keyboard::I) {
                     should_spin = !should_spin;
+                    if (delta.x == 0 && delta.y == 0)
+                        delta = sf::Vector2f(1.5, 1.5);
+                    else
+                        delta = sf::Vector2f(0, 0);
+                }
             }
         }
         // debugging / playing around
@@ -93,8 +106,7 @@ int main() {
         auto curr_pos = sprite.getPosition();
         auto window_dim = sf::Vector2f(window.getSize());
 
-        std::cout << "rect top: " << sprite_rect.top << "\n";
-        std::cout << "window y: " << window_dim.y << "\n";
+        get_all_bounds(sprite_rect, window_dim);
 
         // left
         if (sprite_rect.left < 0)
@@ -109,9 +121,8 @@ int main() {
         else if (sprite_rect.top < 0) {
             delta.y *= -1;
         }
-        sprite.setPosition(curr_pos + delta);
 
-        // down
+        sprite.setPosition(curr_pos + delta);
 
         // draw the cringe sprite to screen
         window.draw(sprite);
