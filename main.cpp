@@ -100,10 +100,8 @@ int main() {
         else if (sprite_rect.left + sprite_rect.width > window_dim.x)
             delta.x *= -1;
         // top
-        if (sprite_rect.top + sprite_rect.height > window_dim.y) {
-            std::cout << "this is running\n";
+        if (sprite_rect.top + sprite_rect.height > window_dim.y)
             delta.y *= -1;
-        }
         // bottom
         else if (sprite_rect.top < 0)
             delta.y *= -1;
