@@ -3,6 +3,9 @@
 #include <SFML/System.hpp>
 #include <iostream>
 
+// Daniel Gonzalez
+// First time using SFML
+
 int main() {
     // init window
     sf::RenderWindow window(sf::VideoMode(800, 800), "sfml-app");
