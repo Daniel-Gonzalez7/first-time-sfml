@@ -33,7 +33,7 @@ int main() {
     sprite.setOrigin((sf::Vector2f)t1.getSize() / 2.f);
     sprite.setPosition(win_size.x / 2, win_size.y / 2);
 
-    // for movement
+    // initial movement
     sf::Vector2f delta(-1.5, 1.5);
 
     // for rotation
@@ -99,13 +99,13 @@ int main() {
         // right
         else if (sprite_rect.left + sprite_rect.width > window_dim.x)
             delta.x *= -1;
-        // top
+        // bottom
         if (sprite_rect.top + sprite_rect.height > window_dim.y)
             delta.y *= -1;
-        // bottom
-        else if (sprite_rect.top < 0)
+        // top
+        else if (sprite_rect.top < 0) {
             delta.y *= -1;
-
+        }
         sprite.setPosition(curr_pos + delta);
 
         // down
