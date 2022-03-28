@@ -1,18 +1,18 @@
-APP			= mendelbrot.exe
+APP			= mandelbrot.exe
 CC			= g++
-SRCS		= mendelbrot.cpp
+SRCS		= mandelbrot.cpp
 OBJS		:= $(SRCS: .cpp=.o)
 LINKS		= -lsfml-graphics -lsfml-window -lsfml-system -lGL #GL is for opengl
 
-$(APP): mendelbrot.o
+$(APP): mandelbrot.o
 	$(CC) $(OBJS) -o $(APP) $(LINKS)
 
-mendelbrot.o: mendelbrot.cpp
+mandelbrot.o: mandelbrot.cpp
 	$(CC) -c $(SRCS)
 
 run: $(APP)
 	./$(APP) $(ARGS)
 
 clean:
-	rm mendelbrot.exe *.o
+	rm mandelbrot.exe *.o
 	

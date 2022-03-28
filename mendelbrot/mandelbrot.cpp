@@ -1,15 +1,25 @@
 #include <math.h>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
 #include <complex>
 #include <iostream>
+#include <thread>
 #include <vector>
-#define WINSIZE 1000
-#define MAX_ITERATIONS 255
+using Complex = std::complex<double>;
 
-static sf::Color map[16] = {
-    sf::Color(66, 30, 15),
+// constants
+static const int WINSIZE = 500;
+static const int MAX_ITERATIONS = 255;
+static const int NUM_THREADS = 4;
+
+// settings
+static Complex origin(0, 0);
+static Complex bounds(2, 2);
+
+static const sf::Color map[16] = {
+    sf::Color(65, 30, 0),
     sf::Color(25, 7, 26),
     sf::Color(9, 1, 47),
     sf::Color(4, 4, 73),
@@ -26,19 +36,17 @@ static sf::Color map[16] = {
     sf::Color(153, 87, 0),
     sf::Color(106, 52, 3)};
 
-using Complex = std::complex<double>;
-
 /*
     iterate through every point in the window.
     Map that point to a point on the complex plane.
-    Decide whether it is in the Mendelbrot set.
+    Decide whether it is in the mandelbrot set.
     M = set of complex numbers { c : distance of f_c is bounded. f_c = f_c(z) = z^2 - c }
     Based on the number of iterations taken,
     map it to a color (i used a cringe palette)
     TODO: implement threading, add zoom capabilities
 */
 
-static const sf::Color Colorize(const int iterations) {
+static const sf::Color map_to_color(const int iterations) {
     unsigned int mapping = iterations % 16;
     return map[mapping];
 }
@@ -51,10 +59,24 @@ const Complex pixel_to_point(unsigned int x, unsigned int y, const Complex& boun
     return Complex(real, i);
 }
 
+// threadable
+void better_iterate(std::array<std::array<sf::Color, WINSIZE>, WINSIZE>& pixels, int from, int to, Complex bounds, Complex origin) {
+    int iterations = 0;
+    for (int i = from; i < to; i++) {
+        for (int j = 0; j < pixels[0].size(); j++) {
+            Complex coord = (pixel_to_point(j, i, bounds) + origin);
+            for (Complex z = 0; std::norm(z) <= 4.f && iterations <= MAX_ITERATIONS; iterations++) {
+                z = pow(z, 2) + coord;
+            }
+            pixels[i][j] = map_to_color(iterations);
+            iterations = 0;
+        }
+    }
+}
+
 // should really spit this up
 void iterate(std::array<std::array<sf::Color, WINSIZE>, WINSIZE>& pixels,
              const Complex& bounds, const Complex& origin) {
-    // here goes nutin'
     unsigned int iterations = 0;
     for (int i = 0; i < pixels.size(); i++) {
         for (int j = 0; j < pixels[0].size(); j++) {
@@ -62,25 +84,23 @@ void iterate(std::array<std::array<sf::Color, WINSIZE>, WINSIZE>& pixels,
             for (Complex z = 0; std::norm(z) <= 4.f && iterations <= MAX_ITERATIONS; iterations++) {
                 z = pow(z, 2) + coord;
             }
-            pixels[i][j] = Colorize(iterations);
+            pixels[i][j] = map_to_color(iterations);
             iterations = 0;
         }
     }
 }
 
 int main() {
-    Complex origin(0, 0);
-    Complex bounds(2, 2);  // x axis x:-2.5 -> 2.5, y: -2.5 -> 2.5
-    const int length = WINSIZE;
-    sf::Thread thread();
     bool should_update = true;
     // initialize pixels and color a plane
-    auto pixels = std::array<std::array<sf::Color, length>, length>();
+    auto pixels = std::array<std::array<sf::Color, WINSIZE>, WINSIZE>();
     sf::Texture texture;
     sf::Image image;
 
+    std::vector<std::thread> threads;
+
     // window init
-    sf::RenderWindow window(sf::VideoMode(length, length), "mendelbrot");
+    sf::RenderWindow window(sf::VideoMode(WINSIZE, WINSIZE), "mandelbrot");
     window.setFramerateLimit(300);
     window.setKeyRepeatEnabled(false);
     window.display();
@@ -97,7 +117,15 @@ int main() {
                         break;
                     case sf::Keyboard::Left:
                         origin = {origin.real() - (bounds.real() / 10), origin.imag()};
-                        //  bounds = Complex(bounds.real() - 0.1, bounds.imag());
+                        break;
+                    case sf::Keyboard::Right:
+                        origin = {origin.real() + (bounds.real() / 10), origin.imag()};
+                        break;
+                    case sf::Keyboard::Up:
+                        origin = {origin.real(), origin.imag() + bounds.imag() / 10};
+                        break;
+                    case sf::Keyboard::Down:
+                        origin = {origin.real(), origin.imag() - bounds.imag() / 10};
                         break;
                 }
 
@@ -126,14 +154,17 @@ int main() {
         if (should_update) {
             should_update = false;
             iterate(pixels, bounds, origin);
-            std::cout << "new origin:" << origin << "\n";
-            std::cout << "new bounds:" << bounds << "\n";
-        }
-        image.create(length, length, (sf::Uint8*)pixels.data());
-        texture.loadFromImage(image);
-        texture.loadFromImage(image);
 
-        window.draw(sf::Sprite(texture));
-        window.display();
+            for (auto& thread : threads)
+                thread.join();
+           /* std::cout << "new origin:" << origin << "\n";
+            std::cout << "new bounds:" << bounds << "\n";
+        */}
+           image.create(WINSIZE, WINSIZE, (sf::Uint8*)pixels.data());
+           texture.loadFromImage(image);
+           texture.loadFromImage(image);
+
+           window.draw(sf::Sprite(texture));
+           window.display();
     }
 }
