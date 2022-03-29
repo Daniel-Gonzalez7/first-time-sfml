@@ -8,7 +8,7 @@ sfml-app: main.o
 	$(CC) $(OBJS) -o  $(APP) $(LINKS)
 
 main.o: main.cpp
-	$(CC) -c -std=c++17 $(SRCS)
+	$(CC) -c $(SRCS)
 
 run: $(APP)
 	./$(APP) $(ARGS)

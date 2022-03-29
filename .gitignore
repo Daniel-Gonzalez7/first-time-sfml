@@ -1,5 +1,6 @@
 #executables
 sfml-app
+mendelbrot.exe
 
 #obj files
 *.o
@@ -10,3 +11,4 @@ sfml-app
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+*.json

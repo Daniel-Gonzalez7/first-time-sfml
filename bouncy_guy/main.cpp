@@ -6,6 +6,7 @@
 // Daniel Gonzalez
 // First time using SFML
 
+// debugging/learning what rect properties are
 void get_all_bounds(sf::FloatRect sprite_rect, sf::Vector2f window_dim) {
     std::cout << "rect left coordinate: " << sprite_rect.left << "\n";
     std::cout << "rect right coordinate: " << sprite_rect.left + sprite_rect.width << "\n";
